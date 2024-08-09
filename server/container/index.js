@@ -43,7 +43,7 @@ async function init() {
 
   const originalVideoPath = path.resolve(originalFilePath); // To convert a string into actually path
 
-  //* Start the transcoder
+  //* Start the transcoder 
   const promises = Resolutions.map((Resolution) => {
     const output = `transcode/video-${Resolution.name}.mp4`;
 
