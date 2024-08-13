@@ -13,11 +13,23 @@
     "@aws-sdk/client-sqs": "^3.616.0",
     "@types/aws-lambda": "^8.10.142",
     "aws-lambda": "^1.0.7",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "connect-mongo": "^5.1.0",
+    "cors": "^2.8.5",
+    "debug": "^4.3.6",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-fileupload": "^1.5.1",
+    "express-session": "^1.18.0",
+    "express-validator": "^7.2.0",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.8.0",
     "mongoose": "^8.5.2",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
     "nodemon": "^3.1.4",
+    "socket.io": "^4.7.5",
     "types": "^0.1.1"
   }
 }
