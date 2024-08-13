@@ -48,3 +48,21 @@ exports.endLiveStream = async (req, res) => {
     }
   };
   
+
+  exports.getLiveStreamById = async (req, res) => {
+    try {
+      const liveStream = await LiveStream.findById(req.params.id)
+        .populate('user', 'username')
+        .populate('viewers');
+  
+      if (!liveStream) {
+        return res.status(404).json({ msg: 'Live stream not found' });
+      }
+  
+      res.json(liveStream);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Server error');
+    }
+  };
+  
