@@ -71,10 +71,10 @@ init();
 
 
 const dotenv  = require('dotenv')
+dotenv.config()
 
 const mongoose  = require('mongoose')
 
-dotenv.config()
 
 
 const URI = process.env.URI
