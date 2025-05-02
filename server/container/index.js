@@ -17,8 +17,8 @@ const Resolutions = [
 const s3Client = new S3Client({
   region: "ap-south-1",
   credentials: {
-    accessKeyId: "AKIAU6GD3PZUI2K3R3X4",
-    secretAccessKey: "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",
+    accessKeyId: "",
+    secretAccessKey: "",
   },
 });
 
