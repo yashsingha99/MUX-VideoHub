@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { startLiveStream, endLiveStream, getLiveStreamById } = require('../controllers/liveStreamController');
+const { startLiveStream, endLiveStream, getLiveStreamById } = require('../controller/liveStream.controller');
 const auth = require('../middleware/auth');
 
 // Protected routes

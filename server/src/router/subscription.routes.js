@@ -1,6 +1,6 @@
 const express = require('express');
-const router = express.Router();
-const { createSubscription, getUserSubscription, cancelSubscription } = require('../controllers/subscriptionController');
+const router = express.Router();    
+const { createSubscription, getUserSubscription, cancelSubscription } = require('../controller/subscription.controller');
 const auth = require('../middleware/auth');
 
 // Protected routes

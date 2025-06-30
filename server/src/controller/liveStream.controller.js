@@ -1,4 +1,4 @@
-const LiveStream = require('../models/LiveStream');
+const LiveStream = require('../models/liveStream.model');
 
 // Start a new live stream
 exports.startLiveStream = async (req, res) => {

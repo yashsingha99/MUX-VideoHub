@@ -1,24 +1,25 @@
 const express = require('express');
-const connectDB = require('./config/db'); // Assuming you have a MongoDB connection setup
+const {connectDB} = require('./config/db');  
 require('dotenv').config();
 
 const app = express();
 
-// Connect Database
 connectDB();
 
-// Init Middleware
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Define Routes
-app.use('/api/users', require('./routes/userRoutes'));
-app.use('/api/videos', require('./routes/videoRoutes'));
-app.use('/api/live-streams', require('./routes/liveStreamRoutes'));
-app.use('/api/comments', require('./routes/commentRoutes'));
-app.use('/api/subscriptions', require('./routes/subscriptionRoutes'));
 
-// Serve static assets in production
+
+app.use('/api/users', require('./router/user.routes'));
+app.use('/api/videos', require('./router/video.routes'));
+app.use('/api/live-streams', require('./router/liveStream.routes'));
+app.use('/api/comments', require('./router/comment.routes'));
+app.use('/api/subscriptions', require('./router/subscription.routes'));
+
+
+
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('client/build'));
 
@@ -27,6 +28,5 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// Setup Port
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+
+module.exports = app;

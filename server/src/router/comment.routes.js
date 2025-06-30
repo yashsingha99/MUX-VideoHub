@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { addComment, getCommentsForVideo, deleteComment } = require('../controllers/commentController');
+const { addComment, getCommentsForVideo, deleteComment } = require('../controller/comment.controller');
 const auth = require('../middleware/auth');
 
 // Protected routes

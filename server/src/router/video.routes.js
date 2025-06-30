@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { uploadVideo, getVideoById, updateVideo, deleteVideo } = require('../controllers/videoController');
+const { uploadVideo, getVideoById, updateVideo, deleteVideo } = require('../controller/video.controller');
 const auth = require('../middleware/auth');
 
 // Protected routes

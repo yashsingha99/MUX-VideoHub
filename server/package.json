@@ -2,6 +2,7 @@
   "name": "mux",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
     "dev": "nodemon src/index.js"
   },
@@ -10,6 +11,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@aws-sdk/client-ecs": "^3.839.0",
     "@aws-sdk/client-sqs": "^3.616.0",
     "@types/aws-lambda": "^8.10.142",
     "aws-lambda": "^1.0.7",
