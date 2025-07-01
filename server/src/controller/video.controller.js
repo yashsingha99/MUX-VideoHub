@@ -2,7 +2,7 @@ const Video = require('../models/video.model');
 // Upload a new video
 exports.uploadVideo = async (req, res) => {
   try {
-    const { title, description, url, thumbnail } = req.body;
+    const { title, description, thumbnail } = req.body;
 
     const video = new Video({
       title,

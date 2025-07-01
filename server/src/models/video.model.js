@@ -11,10 +11,10 @@ const videoSchema = new Schema({
     type: String,
     trim: true,
   },
-  url: {
-    type: String,
-    required: true,
-  },
+  // url: {
+  //   type: String,
+  //   required: true,
+  // },
   thumbnail: {
     type: String,
   },
@@ -28,22 +28,22 @@ const videoSchema = new Schema({
     enum: ['pending', 'processing', 'completed', 'failed'],
     default: 'pending',
   },
-  views: {
-    type: Number,
-    default: 0,
-  },
-  likes: [{
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-  }],
-  dislikes: [{
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-  }],
-  comments: [{
-    type: Schema.Types.ObjectId,
-    ref: 'Comment',
-  }],
+  // views: {
+  //   type: Number,
+  //   default: 0,
+  // },
+  // likes: [{
+  //   type: Schema.Types.ObjectId,
+  //   ref: 'User',
+  // }],
+  // dislikes: [{
+  //   type: Schema.Types.ObjectId,
+  //   ref: 'User',
+  // }],
+  // comments: [{
+  //   type: Schema.Types.ObjectId,
+  //   ref: 'Comment',
+  // }],
   createdAt: {
     type: Date,
     default: Date.now,

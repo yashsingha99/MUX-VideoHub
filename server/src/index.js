@@ -47,6 +47,7 @@ async function init() {
       continue;
     }
 
+
     try {
       for (const message of Messages) {
 

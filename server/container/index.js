@@ -6,7 +6,7 @@ const {
 const fs = require("node:fs").promises;
 const path = require("node:path");
 const ffmpeg = require("fluent-ffmpeg");
-
+const {s3Client} = require("./lib/S3Client");
 // Define output resolutions
 const Resolutions = [
   { name: "360p", width: "480", height: "360" },
@@ -15,14 +15,6 @@ const Resolutions = [
 ];
 
 // S3 client configuration
-const s3Client = new S3Client({
-  region: "ap-south-1",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID, // ❗ Never hardcode keys
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
-
 // Read env variables
 const BUCKET_NAME = process.env.BUCKET_NAME;
 const KEY = process.env.KEY;
