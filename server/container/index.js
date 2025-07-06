@@ -1,23 +1,22 @@
-const {
-  S3Client,
-  GetObjectCommand,
-  PutObjectCommand,
-} = require("@aws-sdk/client-s3");
 const fs = require("node:fs").promises;
 const path = require("node:path");
 const ffmpeg = require("fluent-ffmpeg");
-const {s3Client} = require("./lib/S3Client");
-// Define output resolutions
-const Resolutions = [
-  { name: "360p", width: "480", height: "360" },
-  { name: "480p", width: "858", height: "480" },
-  { name: "720p", width: "1280", height: "720" },
-];
+const { S3Client, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
 
-// S3 client configuration
-// Read env variables
+// ✅ Create an instance of S3Client
+const s3Client = new S3Client({
+  region: "ap-south-1",
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
+
 const BUCKET_NAME = process.env.BUCKET_NAME;
 const KEY = process.env.KEY;
+const RES_WIDTH = process.env.RES_WIDTH;
+const RES_HEIGHT = process.env.RES_HEIGHT;
+const RES_NAME = process.env.RES_NAME || `${RES_HEIGHT}p`;
 
 async function streamToBuffer(stream) {
   return new Promise((resolve, reject) => {
@@ -37,61 +36,57 @@ async function init() {
       Key: KEY,
     });
 
-    const result = await s3Client.send(command);
+    const result = await s3Client.send(command); // ✅ Corrected
     const buffer = await streamToBuffer(result.Body);
 
     const originalFilePath = "original-video.mp4";
     await fs.writeFile(originalFilePath, buffer);
     const originalVideoPath = path.resolve(originalFilePath);
 
-    // Transcode to different resolutions
-    const promises = Resolutions.map((resolution) => {
-      const output = `video-${resolution.name}.mp4`;
+    const output = `video-${RES_NAME}.mp4`;
 
-      return new Promise((resolve, reject) => {
-        ffmpeg(originalVideoPath)
-          .output(output)
-          .videoCodec("libx264")
-          .audioCodec("aac")
-          .size(`${resolution.width}x${resolution.height}`)
-          .on("start", () => {
-            console.log(`Transcoding started for ${resolution.name}`);
-          })
-          .on("end", async () => {
-            console.log(`Finished transcoding ${resolution.name}`);
+    // ✅ Wait for transcoding to finish
+    await new Promise((resolve, reject) => {
+      ffmpeg(originalVideoPath)
+        .output(output)
+        .videoCodec("libx264")
+        .audioCodec("aac")
+        .size(`${RES_WIDTH}x${RES_HEIGHT}`)
+        .on("start", () => {
+          console.log(`Transcoding started for ${RES_NAME}`);
+        })
+        .on("end", async () => {
+          console.log(`Finished transcoding ${RES_NAME} to ${output}`);
 
-            try {
-              const videoBuffer = await fs.readFile(output);
-              const putCommand = new PutObjectCommand({
-                Bucket: "transcoded.video.app",
-                Key: output,
-                Body: videoBuffer,
-              });
+          try {
+            const videoBuffer = await fs.readFile(output);
+            const putCommand = new PutObjectCommand({
+              Bucket: "transcoded.video.app", // ✅ Update to your actual bucket name
+              Key: output,
+              Body: videoBuffer,
+            });
 
-              await s3Client.send(putCommand);
-              console.log(`Uploaded ${output}`);
-              resolve(output);
-            } catch (err) {
-              console.error(`Upload failed for ${output}`, err);
-              reject(err);
-            }
-          })
-          .on("error", (err) => {
-            console.error(`FFmpeg error for ${resolution.name}:`, err);
+            await s3Client.send(putCommand);
+            console.log(`✅ Uploaded ${output} to transcoded.video.app`);
+            resolve();
+          } catch (err) {
+            console.error(`❌ Upload failed for ${output}`, err);
             reject(err);
-          })
-          .format("mp4")
-          .run();
-      });
+          }
+        })
+        .on("error", (err) => {
+          console.error(`❌ FFmpeg error for ${RES_NAME}:`, err);
+          reject(err);
+        })
+        .format("mp4")
+        .run();
     });
-
-    await Promise.all(promises);
-    console.log("✅ All videos transcoded and uploaded");
   } catch (error) {
     console.error("🚫 Error in processing:", error);
-  } finally {
-    process.exit(0);
   }
+  //  finally {
+  //   process.exit(0);
+  // }
 }
 
 init();

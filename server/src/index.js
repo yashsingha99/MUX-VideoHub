@@ -5,22 +5,23 @@ dotenv.config()
 const { ReceiveMessageCommand, SQSClient, DeleteMessageCommand } = require("@aws-sdk/client-sqs");
 const { RunTaskCommand, ECSClient } = require("@aws-sdk/client-ecs");
 const { S3Event } = require("aws-lambda");
+// const {uploadVideoToTempBucket} = require("./service/uploadToTempBucket");
 
 
 //*-------CONFIGURE SIMPLE QUEUE SERVICE--------//
 const client = new SQSClient({
   region: "ap-south-1",
   credentials: {
-    accessKeyId: "AKIAU6GD3PZUO6UJXF7P",
-    secretAccessKey: "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",
+    accessKeyId: process.env.ACCESS_KEY_ID,
+    secretAccessKey: process.env.SECRET_ACCESS_KEY,
   },
 });
 
 const ecsClient = new ECSClient({
   region: "ap-south-1",
   credentials: {
-    accessKeyId: "AKIAU6GD3PZUO6UJXF7P",
-    secretAccessKey: "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",
+    accessKeyId: process.env.ACCESS_KEY_ID,
+    secretAccessKey: process.env.SECRET_ACCESS_KEY,
   },
 });
 
@@ -31,7 +32,8 @@ const ecsClient = new ECSClient({
 //*------- PUSH THE VIDEO INTO S3 BUCKET (Where all transcoded videos are pushed)
 //*------- DELETE THE MESSAGE FROM QUEUE
 
-async function init() {
+exports.init = async function init(resolution = { width: "1280", height: "720", name: "720p" }) {
+
   const command = new ReceiveMessageCommand({
     QueueUrl:
       "https://sqs.ap-south-1.amazonaws.com/339713162856/tempRowQueueS3Videos",
@@ -82,15 +84,21 @@ async function init() {
 
           //* spin the docker container
           const runTaskCommand = new RunTaskCommand({
-            cluster: "arn:aws:ecs:ap-south-1:339713162856:cluster/stable-frog-9zi5i5",
-            taskDefinition: "arn:aws:ecs:ap-south-1:339713162856:task-definition/dev",
+            cluster: "arn:aws:ecs:ap-south-1:339713162856:cluster/practical-kangaroo-0knpop",
+            taskDefinition: "arn:aws:ecs:ap-south-1:339713162856:task-definition/video-transcoder",
+            // service: "arn:aws:ecs:ap-south-1:339713162856:service/stable-frog-9zi5i5/dev-service-fj6wb6b9",
             overrides: {
               containerOverrides: [
                 {
                   name: "video-transcoder",
                   environment: [
                     { name: "BUCKET_NAME", value: bucket.name },
-                    { name: "OBJECT_KEY", value: key },
+                    { name: "KEY", value: key },
+                    { name: "RES_WIDTH", value: resolution.width },
+                    { name: "RES_HEIGHT", value: resolution.height },
+                    { name: "RES_NAME", value: resolution.name || `${resolution.height}p` },
+                    { name: "AWS_ACCESS_KEY_ID", value: process.env.ACCESS_KEY_ID },
+                    { name: "AWS_SECRET_ACCESS_KEY", value: process.env.SECRET_ACCESS_KEY},
                   ],
                 },
               ],
@@ -127,9 +135,11 @@ async function init() {
       console.log(error);
     }
   }
+
 }
 
-init();
+// init();
 
-const app = require("./app")
+const app = require("./app");
+// const { uploadVideo } = require('./controller/video.controller');
 app.listen(3000, () => console.log("server is running...."))

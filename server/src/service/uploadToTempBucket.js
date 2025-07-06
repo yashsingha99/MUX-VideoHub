@@ -1,55 +1,76 @@
-const dotenv = require('dotenv')
-dotenv.config()
+const dotenv = require("dotenv");
+dotenv.config();
 
 const {
-    GetObjectCommand,
-    PutObjectCommand,
-    DeleteObjectCommand,
+  S3Client,
+  GetObjectCommand,
+  PutObjectCommand,
+  DeleteObjectCommand,
 } = require("@aws-sdk/client-s3");
-const fs = require("node:fs").promises;
-const path = require("node:path");
-const ffmpeg = require("fluent-ffmpeg");
-const { s3Client } = require("./lib/S3Client");
-const { randomUUID } = require('crypto');
+
 
 const Bucket = process.env.TEMP_BUCKET_NAME;
 
-exports.uploadVideoToTempBucket = async (videoBuffer) => {
-    try {
-        if (!videoBuffer) {
-            throw new Error("No video buffer provided");
-        }
-        // Upload video to temporary S3 bucket
-        const uploadParams = {
-            Bucket,
-            Key: `temp-${randomUUID()}.mp4`,
-            Body: videoBuffer,
-        };
+const s3Client = new S3Client({
+  region: "ap-south-1", // Change to your region
+  credentials: {
+    accessKeyId: process.env.ACCESS_KEY_ID,
+    secretAccessKey: process.env.SECRET_ACCESS_KEY,
+  },
+});
 
-        const result = await s3Client.send(new PutObjectCommand(uploadParams));
-        console.log("Video uploaded successfully:", result);
+exports.uploadVideoToTempBucket = async (videoBuffer, key) => {
+  // console.log("Access Key:", process.env.ACCESS_KEY_ID);
+  // console.log("Secret Key:", process.env.SECRET_ACCESS_KEY);
+  // console.log("Bucket Name:", Bucket);
 
-        res.status(200).json({ message: "Video uploaded successfully", data: result });
-    } catch (error) {
-        console.log(error);
-
+  try {
+    if (!videoBuffer || !Buffer.isBuffer(videoBuffer) || videoBuffer.length === 0 || !key) {
+      throw new Error("No video buffer or key provided");
     }
-}
+
+    const uploadParams = {
+      Bucket,
+      Key: key,
+      Body: videoBuffer,
+      ContentType: "video/mp4",
+    };
+
+    const command = new PutObjectCommand(uploadParams);
+    const result = await s3Client.send(command);
+
+
+    return {
+      message: "Video uploaded successfully",
+      data: result,
+    };
+  } catch (error) {
+    console.error("Upload failed:", error);
+    throw error;
+  }
+};
+
 
 exports.deleteVideoFromTempBucket = async (videoKey) => {
-    try {
-        if (!videoKey) {
-            throw new Error("No video key provided");
-        }
-        const deleteParams = {
-            Bucket,
-            Key: videoKey,
-        };
-
-        const result = await s3Client.send(new DeleteObjectCommand(deleteParams));
-        console.log("Video deleted successfully:", result);
-
-    } catch (error) {
-        console.log(error);
+  try {
+    if (!videoKey) {
+      throw new Error("No video key provided");
     }
-}
+    const deleteParams = {
+      Bucket,
+      Key: videoKey,
+    };
+    setTimeout(async () => {
+      try {
+        const deleteCommand = new DeleteObjectCommand(deleteParams);
+        await s3Client.send(deleteCommand);
+        console.log(`Auto-deleted: ${videoKey}`);
+      } catch (deleteErr) {
+        console.error("Auto-delete failed:", deleteErr);
+      }
+    }, 1 * 60 * 1000);
+
+  } catch (error) {
+    console.log(error);
+  }
+};
