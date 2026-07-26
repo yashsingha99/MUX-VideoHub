@@ -2,6 +2,8 @@ import Header from "@/components/header"
 import Footer from "@/components/footer"
 import Link from "next/link"
 import { Calendar, User, ArrowRight } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 export default function BlogPage() {
   const blogPosts = [
